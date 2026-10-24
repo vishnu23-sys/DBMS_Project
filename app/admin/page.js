@@ -7,6 +7,8 @@ import { daysAgo, fmtDateTime, pct, tagNumber } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
 
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
 export default async function DeskPage() {
   await requireUser(['staff', 'admin']);
   const [{ pendingItems, pendingClaims, awaitingHandover, counts }, { locations }] = await Promise.all([
@@ -21,8 +23,8 @@ export default async function DeskPage() {
         <div>
           <h1 className="display text-4xl sm:text-5xl">Desk</h1>
           <p className="mt-2 text-muted">
-            {pendingItems.length} reports to review, {pendingClaims.length} claims to verify,{' '}
-            {awaitingHandover.length} items waiting to be collected.
+            {plural(pendingItems.length, 'report')} to review, {plural(pendingClaims.length, 'claim')} to verify,{' '}
+            {plural(awaitingHandover.length, 'item')} waiting to be collected.
           </p>
         </div>
         <div className="text-right">

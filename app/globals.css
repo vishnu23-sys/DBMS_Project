@@ -24,42 +24,43 @@
   --code-bg: #1c2633;
 }
 
-/* Dark theme: follows the system unless the toggle picked one */
+/* Dark theme: follows the system unless the toggle picked one.
+   Light and dark swap the same two colours instead of adding new ones. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --color-paper: #11171f;
-    --color-surface: #1a222d;
-    --color-ink: #e6ebf1;
-    --color-muted: #9aa7b6;
-    --color-line: #2c3746;
-    --color-manila: #3b3423;
-    --color-manila-edge: #75653c;
-    --color-lost: #f06a7c;
-    --color-found: #3cc4ad;
-    --color-warn: #e3a849;
-    --on-ink: #11171f;
-    --on-accent: #11171f;
-    --row-line: #232d3a;
-    --code-bg: #0b1016;
+    --color-paper: #1c2633;      /* the light theme's ink becomes the page */
+    --color-surface: #243143;
+    --color-ink: #eef1f4;        /* ...and its paper becomes the text */
+    --color-muted: #a5b1bf;
+    --color-line: #35445a;
+    --color-manila: #e2cd97;     /* tags stay paper, a little dimmer */
+    --color-manila-edge: #b49f66;
+    --color-lost: #f0959b;
+    --color-found: #7fcbb6;
+    --color-warn: #e8b766;
+    --on-ink: #1c2633;
+    --on-accent: #1c2633;
+    --row-line: #2d3a4d;
+    --code-bg: #141c27;
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --color-paper: #11171f;
-  --color-surface: #1a222d;
-  --color-ink: #e6ebf1;
-  --color-muted: #9aa7b6;
-  --color-line: #2c3746;
-  --color-manila: #3b3423;
-  --color-manila-edge: #75653c;
-  --color-lost: #f06a7c;
-  --color-found: #3cc4ad;
-  --color-warn: #e3a849;
-  --on-ink: #11171f;
-  --on-accent: #11171f;
-  --row-line: #232d3a;
-  --code-bg: #0b1016;
+  --color-paper: #1c2633;      /* the light theme's ink becomes the page */
+  --color-surface: #243143;
+  --color-ink: #eef1f4;        /* ...and its paper becomes the text */
+  --color-muted: #a5b1bf;
+  --color-line: #35445a;
+  --color-manila: #e2cd97;     /* tags stay paper, a little dimmer */
+  --color-manila-edge: #b49f66;
+  --color-lost: #f0959b;
+  --color-found: #7fcbb6;
+  --color-warn: #e8b766;
+  --on-ink: #1c2633;
+  --on-accent: #1c2633;
+  --row-line: #2d3a4d;
+  --code-bg: #141c27;
 }
 
 body {
@@ -127,6 +128,17 @@ body {
 .tag-found { --tag-band: var(--color-found); }
 a.tag:hover { transform: rotate(-0.6deg) translateX(2px); }
 
+/* A tag is a physical paper object: it keeps light-theme ink in both
+   themes, and its hole shows the page through it. */
+.tag {
+  --color-ink: #1c2633;
+  --color-muted: #5b6878;
+  --color-lost: #c8374b;
+  --color-found: #1f8a7a;
+  --color-warn: #b7791f;
+  color: var(--color-ink);
+}
+
 .tag-no {
   font-family: var(--font-display);
   font-stretch: 75%;
@@ -134,8 +146,30 @@ a.tag:hover { transform: rotate(-0.6deg) translateX(2px); }
   font-variant-numeric: tabular-nums;
 }
 
+/* Wall light switch used by the theme toggle */
+.switch-plate {
+  position: relative;
+  display: inline-block;
+  width: 14px;
+  height: 22px;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+}
+.switch-rocker {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 2px;
+  height: 8px;
+  border-radius: 1.5px;
+  background: currentColor;
+  transition: top 140ms ease;
+}
+.switch-rocker.is-off { top: 9px; }
+
 @media (prefers-reduced-motion: reduce) {
   a.tag:hover { transform: none; }
+  .switch-rocker { transition: none; }
 }
 
 /* ------------------------------------------------------------------ */
