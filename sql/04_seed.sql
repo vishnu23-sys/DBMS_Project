@@ -135,7 +135,7 @@ INSERT INTO verification_questions (item_id, question, expected_answer) VALUES
  (6,  'Apart from bank cards, what is inside?',         'metro card and a photo'),
  (12, 'What does the keychain look like?',              'red spiderman keychain'),
  (18, 'What is inside the laptop sleeve?',              'notebooks and a dell laptop'),
- (20, 'What is engraved on the case?',                  'initials AR'),
+ (20, 'What initials are engraved on the case?',        'AR'),
  (23, 'What is printed on the back of the hoodie?',     'AIML 2024'),
  (25, 'Whose names are on the cards?',                  'Sneha Kulkarni'),
  (30, 'What is engraved on the back of the watch?',     'happy 18th birthday'),
@@ -211,6 +211,7 @@ CALL sp_record_handover(10, 1, 13);
 -- ---------------------------------------------------------------------
 ALTER TABLE items  DISABLE TRIGGER USER;
 ALTER TABLE claims DISABLE TRIGGER USER;
+ALTER TABLE users  DISABLE TRIGGER USER;
 
 UPDATE items
    SET created_at = LEAST(now() - interval '2 hours',
@@ -237,5 +238,6 @@ UPDATE users SET created_at = now() - interval '150 days';
 
 ALTER TABLE items  ENABLE TRIGGER USER;
 ALTER TABLE claims ENABLE TRIGGER USER;
+ALTER TABLE users  ENABLE TRIGGER USER;
 
 REFRESH MATERIALIZED VIEW mv_monthly_trends;
