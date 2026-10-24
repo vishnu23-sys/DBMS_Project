@@ -13,7 +13,7 @@ export default async function Nav() {
   if (session?.role === 'admin') links.push({ href: '/admin/users', label: 'Users' }, { href: '/admin/audit', label: 'Audit log' });
 
   return (
-    <header className="border-b border-line bg-surface">
+    <header className="border-b border-line bg-header">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
         <Link href="/" className="display text-xl">Lost &amp; Found</Link>
         <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm font-medium">
