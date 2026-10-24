@@ -1,0 +1,9 @@
+node_modules/
+.next/
+.env*.local
+*.local.sql
+.mongo-data/
+.cache/
+next-env.d.ts
+*.tsbuildinfo
+*.local.mjs
