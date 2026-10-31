@@ -365,11 +365,8 @@ We tested on 24 Oct 2026, on a fresh database from `npm run db:setup`.
 | 20 | Production build | builds without errors | Pass |
 | 21 | Phone-width screen (375 px) | no sideways scrolling | Pass |
 
-## 16. Screenshots
 
-To be added in `docs/screenshots/`: home page, search, an item with matches, the report form, the student dashboard, the staff desk, the reports page and the audit log.
-
-## 17. Conclusion and future work
+## 16. Conclusion and future work
 
 PostgreSQL keeps claims and handovers correct through constraints, triggers, procedures and transactions. MongoDB handles the logs and notifications, which change shape and arrive in large numbers. The embeddings let us match items by meaning instead of exact words, and in our tests that found pairs a keyword search would have missed.
 
