@@ -1,110 +1,428 @@
 # Campus Lost & Found
 
-DBMS Level 3 project, PES University (Semester 5)
+### Smart Campus-Based Lost and Found Management System
 
-Pravith Mohandas (PES1UG24AM202) and Vishnu Patruni (PES1UG24AM187)
+**DBMS Level 3 Project | PES University | Semester 5**
 
-A lost-and-found website for our campus. Students post things they lost or found, the security and library staff check claims before giving anything back, and the site suggests which lost and found posts are probably the same item.
+**Team Members:** Pravith Mohandas (PES1UG24AM202) and Vishnu Patruni (PES1UG24AM187)
 
-Built with Next.js, PostgreSQL and MongoDB.
+A centralized campus platform that helps students report lost and found belongings, enables staff to verify ownership, and uses AI-powered semantic matching to identify potentially related items.
 
-## Why
+---
 
-Right now, lost items get posted in WhatsApp groups or reported at the security office. Posts get buried, the library and the main gate don't know what the other has, and staff have no easy way to check that the person asking for an ID card or a pair of earphones is really the owner.
+## Table of Contents
 
-## How it works
+- [Overview](#overview)
+- [Problem Statement](#problem-statement)
+- [Key Features](#key-features)
+- [How It Works](#how-it-works)
+- [Technology Stack](#technology-stack)
+- [System Architecture](#system-architecture)
+- [Database Design](#database-design)
+- [AI-Based Matching](#ai-based-matching)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Demo Login Credentials](#demo-login-credentials)
+- [Demo Walkthrough](#demo-walkthrough)
+- [DBMS Concepts](#dbms-concepts)
+- [Documentation](#documentation)
+- [Team Contributions](#team-contributions)
 
-Someone who loses something files a lost report. Someone who finds something files a found report and hands the item in at one of the collection points (security office, library help desk or admin reception). A staff member approves each new report before it shows up publicly.
+---
 
-When a report is approved, the database compares it with the open reports of the opposite type in the same category and a sensible date range. It scores each pair using how similar the wording is and how similar the meaning is (using a small sentence-embedding model). Good matches are saved, and the owner of the lost item gets a notification.
+## Overview
 
-The finder can add a question that only the real owner would know, like "what initials are engraved on the case?". When someone claims the item, a trigger compares their answer with the finder's answer and stores a score, so the staff member reviewing the claim can see it next to the claimant's past rejected claims. Approving a claim rejects any other claims on the same item. Once the owner collects the item, staff record the handover and the finder gets reputation points.
+Campus Lost & Found is a web application designed to simplify the process of reporting, locating and recovering lost belongings within a university campus.
 
-There are three roles: student, staff and admin. Admins can also manage users and see the audit log.
+Students can submit lost and found reports, search listings, receive potential matches and submit ownership claims. Security and library staff verify reports, review claims and manage item handovers. Administrators manage users and monitor system activity.
 
-## Databases
+The application uses PostgreSQL for structured data, MongoDB for activity records and an AI-based matching mechanism.
 
-**PostgreSQL** holds everything that needs to stay consistent: users, departments, categories, locations, items, images, verification questions, claims, matches, handovers and an audit log (11 tables). Most of the rules are enforced in the database itself through constraints, triggers and stored procedures, so bad data is rejected even if it doesn't come through the app. The SQL is in [`sql/`](sql/).
+## Problem Statement
 
-**MongoDB** holds activity logs, search logs and notifications. These are written often, their fields change from one event to the next, and they never need joins, so a document store fits them better than extra tables. The reports page uses aggregation pipelines on them, for example to show what people search for that nobody has handed in.
+Traditional campus lost-and-found systems rely on WhatsApp groups and physical reports at security offices. This makes it difficult to track items, coordinate between collection points and verify ownership.
 
-The embeddings for matching are 384-number vectors stored in a `REAL[]` column in Postgres, compared with a cosine similarity function written in SQL. The model (all-MiniLM-L6-v2) runs locally through transformers.js, so there's no API key.
+Our solution provides a centralized platform with automated item matching, ownership verification and structured handover management.
 
-The full write-up (ER diagram, schema, data dictionary, queries and test results) is in [`docs/PROJECT_REPORT.md`](docs/PROJECT_REPORT.md). The ER diagram is also in [`docs/ER_Diagram.svg`](docs/ER_Diagram.svg).
+## Key Features
 
-## Running it locally
+### Student Portal
 
-You need Node.js 20 or newer and PostgreSQL 14 or newer. You don't have to install MongoDB; `npm run mongo:dev` downloads and runs one for you.
+- Report lost and found items.
+- Upload item descriptions and images.
+- Search and browse listings.
+- View potential AI-generated matches.
+- Submit ownership claims.
+- Track notifications and claim status.
 
-Install packages:
+### Staff Portal
+
+- Review and approve reports.
+- Verify ownership claims.
+- View verification scores and claim history.
+- Approve or reject claims.
+- Record item handovers.
+
+### Admin Portal
+
+- Manage student and staff accounts.
+- Monitor platform activity.
+- Access audit logs.
+- View reports and analytics.
+
+### Intelligent Matching
+
+- Text and semantic similarity.
+- Sentence embedding generation.
+- Category and date-based filtering.
+- Automatic match generation and notifications.
+
+## How It Works
+
+1. **Report an item:** Students submit lost or found reports with descriptions, categories and relevant details.
+2. **Staff approval:** Authorized staff review reports before they become publicly visible.
+3. **AI matching:** The system compares approved reports using category, date, textual and semantic similarity.
+4. **Notifications:** Potential matches are stored and relevant students are notified.
+5. **Ownership claims:** Students submit claims and answer item-specific verification questions.
+6. **Claim verification:** The system calculates answer similarity scores for staff review.
+7. **Claim approval:** Staff approve legitimate claims and competing claims are rejected.
+8. **Item handover:** Staff record collection, and the finder receives reputation points.
+
+## Technology Stack
+
+| Component | Technology |
+|---|---|
+| Frontend | Next.js, React.js |
+| Backend | Next.js API Routes |
+| Relational Database | PostgreSQL |
+| NoSQL Database | MongoDB |
+| AI / NLP | Transformers.js |
+| Embedding Model | all-MiniLM-L6-v2 |
+| Similarity Algorithm | Cosine Similarity |
+| Authentication | JWT |
+| Programming Language | JavaScript |
+| Version Control | Git and GitHub |
+
+## System Architecture
+
+The application uses a hybrid database architecture.
+
+### PostgreSQL
+
+Stores structured data requiring relational integrity and transactional consistency:
+
+- Users and roles
+- Departments and categories
+- Locations and collection points
+- Lost and found items
+- Item images
+- Verification questions
+- Claims and matches
+- Handovers and audit records
+
+Database constraints, triggers, functions and stored procedures enforce business rules.
+
+### MongoDB
+
+Stores flexible, frequently generated documents:
+
+- User activity logs
+- Search logs
+- Notifications
+
+Aggregation pipelines support analytical reports.
+
+## Database Design
+
+The PostgreSQL database contains 11 relational tables and implements:
+
+- Primary and foreign keys.
+- Unique and check constraints.
+- Database triggers.
+- Stored procedures and functions.
+- Views and SQL reporting queries.
+- Transaction management.
+- Custom similarity functions.
+
+MongoDB handles activity tracking, search history and notifications.
+
+## AI-Based Matching
+
+The application uses `all-MiniLM-L6-v2` through Transformers.js to identify potentially related lost and found reports.
+
+The matching process:
+
+1. Generate 384-dimensional sentence embeddings.
+2. Store embeddings in PostgreSQL using `REAL[]`.
+3. Calculate cosine similarity using an SQL function.
+4. Filter candidate reports by category and date.
+5. Store potential matches and notify relevant students.
+
+For example, a search for "earphones" can identify an item described as an "AirPods charging case" through semantic similarity.
+
+## Project Structure
+
+```text
+DBMS_Project/
+│
+├── app/
+│   ├── pages/
+│   └── api/
+│
+├── components/
+│   └── React UI components
+│
+├── lib/
+│   ├── database access
+│   ├── authentication
+│   ├── validation
+│   ├── matching
+│   └── MongoDB integration
+│
+├── sql/
+│   ├── Database schema
+│   ├── Functions and triggers
+│   ├── Views
+│   ├── Sample data
+│   └── Demo queries
+│
+├── scripts/
+│   ├── Database setup
+│   └── Local MongoDB runner
+│
+├── docs/
+│   ├── PROJECT_REPORT.md
+│   └── ER_Diagram.svg
+│
+├── .env.example
+├── package.json
+└── README.md
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20 or newer
+- PostgreSQL 14 or newer
+- npm
+- Git
+
+MongoDB is started through the project's local runner.
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/vishnu23-sys/DBMS_Project.git
+cd DBMS_Project
+```
+
+### 2. Install Dependencies
 
 ```bash
 npm install
 ```
 
-Create a database user and database. Run this once in `psql` as the `postgres` user, with your own password:
+### 3. Create the PostgreSQL Database
+
+Open PostgreSQL:
+
+```bash
+psql -U postgres
+```
+
+Execute:
 
 ```sql
-CREATE ROLE lostfound LOGIN PASSWORD 'pick-a-password';
+CREATE ROLE lostfound LOGIN PASSWORD 'your-password';
 CREATE DATABASE lostfound OWNER lostfound;
 ```
 
-Copy `.env.example` to `.env.local` and fill in `DATABASE_URL` and `JWT_SECRET`.
+Exit:
 
-Start MongoDB in a separate terminal and leave it running:
+```sql
+\q
+```
+
+### 4. Configure Environment Variables
+
+```bash
+cp .env.example .env.local
+```
+
+Configure `.env.local`:
+
+```env
+DATABASE_URL=postgresql://lostfound:your-password@localhost:5432/lostfound
+JWT_SECRET=your-secure-secret
+```
+
+Add any other variables required by `.env.example`.
+
+### 5. Start MongoDB
+
+Open a separate terminal:
 
 ```bash
 npm run mongo:dev
 ```
 
-Create the tables, load the sample data and compute the embeddings. The first run takes about a minute because it downloads the model (around 23 MB):
+Keep it running.
+
+### 6. Initialize the Database
 
 ```bash
 npm run db:setup
 ```
 
-Start the app and open http://localhost:3000:
+This initializes PostgreSQL, loads sample data, computes embeddings and initializes MongoDB.
+
+### 7. Start the Application
 
 ```bash
 npm run dev
 ```
 
-## Sample accounts
+Open the application at:
 
-Every sample account uses the password `Demo@1234`.
+http://localhost:3000
 
-- `admin@campus.edu` is the admin
-- `security@campus.edu` and `library@campus.edu` are staff
-- `vishnu@campus.edu`, `pravith@campus.edu`, `ananya@campus.edu` and the rest are students
+## Demo Login Credentials
 
-A quick walkthrough:
+Use the following sample accounts to explore the different portals.
 
-1. Sign in as `vishnu@campus.edu`. Under My reports there's a suggested match for the grey backpack.
-2. Search for "earphones" under Browse. It finds the AirPods case even though the word "earphones" isn't in it.
-3. Sign in as `security@campus.edu` and open Desk. There are two claims on the AirPods case: Ananya's answer matches 100%, and Rahul's matches 0% (he also has three rejected claims). Approve Ananya's, then record the handover.
-4. Open Reports for the charts and the SQL behind each one.
-5. Sign in as `admin@campus.edu` and open Audit log to see the changes you just made.
+**Common password for all demo accounts: `Demo@1234`**
 
-[`sql/06_demo_queries.sql`](sql/06_demo_queries.sql) has queries to run in `psql` during the demo: joins, subqueries, views, full-text search, statements the triggers reject on purpose, and a transaction that gets rolled back.
+| Role | Username / Email | Password |
+|---|---|---|
+| Admin | admin@campus.edu | Demo@1234 |
+| Security Staff | security@campus.edu | Demo@1234 |
+| Library Staff | library@campus.edu | Demo@1234 |
+| Student | vishnu@campus.edu | Demo@1234 |
+| Student | pravith@campus.edu | Demo@1234 |
+| Student | ananya@campus.edu | Demo@1234 |
 
-## Folders
+These credentials are intended for local demonstration only.
 
-```
-app/          pages, plus the API routes under app/api
-components/   React components
-lib/          database access, auth, validation, matching, MongoDB code
-sql/          schema, functions and triggers, views, sample data, reports, demo queries
-scripts/      database setup and the local MongoDB runner
-docs/         project report and ER diagram
-```
+## Demo Walkthrough
 
-## Scripts
+### 1. Student Portal
 
-- `npm run db:setup` rebuilds Postgres from `sql/`, computes embeddings and reloads MongoDB. Add `--no-mongo` or `--no-ai` to skip those parts.
-- `npm run embed` computes embeddings for items that don't have one yet.
-- `npm run mongo:dev` runs MongoDB on port 27017 and keeps its data in `~/.campus-lost-found/mongo`.
-- `npm run build` makes a production build.
+Log in using:
 
-## Who did what
+- Username: `vishnu@campus.edu`
+- Password: `Demo@1234`
 
-Pravith wrote the problem statement and the first design. Vishnu built the database (schema, procedures, triggers, reports), the MongoDB part and the web app. We'll keep this section updated as we go.
+Navigate to My Reports to view the suggested match for the grey backpack.
+
+### 2. AI-Powered Search
+
+Search for:
+
+`earphones`
+
+Navigate to Browse and observe how the system identifies the AirPods case even though the exact word "earphones" is not present in its description.
+
+### 3. Staff Portal
+
+Log in using:
+
+- Username: `security@campus.edu`
+- Password: `Demo@1234`
+
+Open the Desk section and explore the two claims associated with the AirPods case:
+
+- Ananya's verification answer matches 100%.
+- Rahul's verification answer matches 0%, and he has three previous rejected claims.
+
+Approve Ananya's claim.
+
+### 4. Item Handover
+
+Record the successful item handover through the staff portal.
+
+Observe the corresponding status updates and finder reputation points.
+
+### 5. Reports and Analytics
+
+Open the Reports section to explore analytical dashboards and the SQL queries behind the reports.
+
+### 6. Admin Portal
+
+Log in using:
+
+- Username: `admin@campus.edu`
+- Password: `Demo@1234`
+
+Open the Audit Log section to inspect the changes made during the demonstration.
+
+## DBMS Concepts
+
+| Concept | Implementation |
+|---|---|
+| Relational Database Design | PostgreSQL schema |
+| NoSQL Database | MongoDB collections |
+| Keys and Constraints | Data integrity |
+| Normalization | Relational data organization |
+| Triggers | Automatic database operations |
+| Stored Procedures | Business logic |
+| SQL Functions | Similarity calculations |
+| Views | Reporting |
+| Joins and Subqueries | Data retrieval |
+| Transactions | Claim and handover operations |
+| Indexing | Query optimization |
+| Aggregation | MongoDB analytics |
+
+### Demo SQL Queries
+
+`sql/06_demo_queries.sql` demonstrates:
+
+- Joins and subqueries.
+- Database views.
+- Full-text search.
+- Trigger-based validation.
+- Constraint enforcement.
+- Transactions and rollbacks.
+
+## Documentation
+
+| Resource | Description |
+|---|---|
+| [Project Report](docs/PROJECT_REPORT.md) | Complete project documentation |
+| [ER Diagram](docs/ER_Diagram.svg) | Entity Relationship Diagram |
+| [SQL Scripts](sql/) | Schema, functions, triggers and queries |
+| [Demo Queries](sql/06_demo_queries.sql) | SQL demonstrations |
+
+## Team Contributions
+
+### Pravith Mohandas
+
+**PES1UG24AM202**
+
+- Defined the problem statement, technical requirements and initial system architecture.
+- Contributed to conceptual database design, entity identification and relational modeling.
+- Designed workflows for student reporting, staff verification, ownership claims and item handovers.
+- Defined role-based access requirements for students, staff and administrators.
+- Contributed to the design of semantic item matching using sentence embeddings and similarity-based comparisons.
+- Identified database integrity requirements and business rules for claim approval, item status and recovery.
+- Contributed to technical documentation, system design, database requirements and project planning.
+
+### Vishnu Patruni
+
+**PES1UG24AM187**
+
+- Designed and implemented the PostgreSQL database schema, tables, constraints and relationships.
+- Developed stored procedures, SQL functions and triggers for database-level business logic.
+- Implemented MongoDB integration for activity logs, search logs and notifications.
+- Developed application components, backend API functionality and database connectivity.
+- Implemented database views, reporting queries and analytics.
+- Integrated the AI-based semantic matching mechanism with the application.
+- Developed database initialization scripts, sample data and SQL demonstration queries.
+
+---
+
+## Project Objective
+
+To develop a centralized and intelligent campus lost-and-found platform that improves item recovery through structured database management, automated matching, ownership verification and reliable handover tracking.
+
+**Developed at PES University | DBMS Level 3 | Semester 5**
